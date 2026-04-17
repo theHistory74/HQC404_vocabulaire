@@ -1,0 +1,2176 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Quiz — Histoire du Québec et du Canada</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:        #1c1f26;
+      --surface:   #252930;
+      --surface2:  #2e333d;
+      --border:    #3a4050;
+      --border2:   #4a5268;
+      --text:      #e8ecf4;
+      --muted:     #8d97aa;
+      --accent:    #7c9fd4;
+      --accent2:   #a8c4e8;
+      --green-bg:  #1a2b1e;
+      --green-bd:  #4a8a5a;
+      --green-tx:  #90d4a0;
+      --red-bg:    #2b1a1e;
+      --red-bd:    #8a4a54;
+      --red-tx:    #d49098;
+      --radius:    14px;
+      --radius-sm: 10px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      min-height: 100%;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-text-size-adjust: 100%;
+    }
+
+    .shell {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      padding: 22px 20px 16px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .header-icon {
+      width: 36px; height: 36px;
+      border-radius: 9px;
+      background: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+      opacity: 0.9;
+    }
+
+    .header h1 {
+      font-family: 'Manrope', 'Inter', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 400;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    .header h1 span {
+      display: block;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--muted);
+      margin-top: 2px;
+      letter-spacing: 0.03em;
+    }
+
+    .progress-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .progress-track {
+      flex: 1;
+      height: 4px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 99px;
+      transition: width 0.5s cubic-bezier(.4,0,.2,1);
+      width: 0%;
+    }
+
+    .progress-label {
+      font-size: 0.74rem;
+      color: var(--muted);
+      font-weight: 600;
+      white-space: nowrap;
+      letter-spacing: 0.02em;
+    }
+
+    /* ── CONTENT ── */
+    .content {
+      flex: 1;
+      padding: 18px 16px 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* ── QUESTION CARD ── */
+    .q-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 18px;
+    }
+
+    .q-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .q-num {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .q-type-pill {
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--muted);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      padding: 2px 9px;
+      letter-spacing: 0.02em;
+    }
+
+    .q-text {
+      font-family: 'Manrope', 'Inter', sans-serif;
+      font-size: 1.12rem;
+      font-weight: 400;
+      line-height: 1.55;
+      color: var(--text);
+    }
+
+    .q-type-pill.hidden { display: none; }
+
+    .question-source-num {
+      color: var(--accent2);
+      font-size: 0.92em;
+    }
+
+    /* ── OPTIONS ── */
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .opt-btn {
+      width: 100%;
+      text-align: left;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.91rem;
+      font-weight: 500;
+      line-height: 1.4;
+      color: var(--text);
+      transition: border-color 0.15s, background 0.15s;
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .opt-btn:hover:not(:disabled) {
+      border-color: var(--accent);
+      background: var(--surface2);
+    }
+
+    .opt-btn:disabled { cursor: default; }
+
+    .opt-letter {
+      flex-shrink: 0;
+      width: 22px; height: 22px;
+      border-radius: 6px;
+      background: var(--surface2);
+      color: var(--muted);
+      font-size: 0.7rem;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 1px;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .opt-btn.correct {
+      border-color: var(--green-bd);
+      background: var(--green-bg);
+    }
+    .opt-btn.correct .opt-letter {
+      background: var(--green-bd);
+      color: #fff;
+    }
+
+    .opt-btn.incorrect {
+      border-color: var(--red-bd);
+      background: var(--red-bg);
+    }
+    .opt-btn.incorrect .opt-letter {
+      background: var(--red-bd);
+      color: #fff;
+    }
+
+    /* ── NOTE EXPLICATIVE (post-it) ── */
+    .note-overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.42);
+      z-index: 1000;
+      backdrop-filter: blur(2px);
+    }
+
+    .note-overlay.show { display: flex; }
+
+    .note-card {
+      position: relative;
+      width: min(92vw, 430px);
+      background: #f3df78;
+      color: #372d08;
+      border: 1px solid #d8c35d;
+      border-radius: 8px;
+      padding: 24px 18px 18px;
+      box-shadow: 0 22px 46px rgba(0,0,0,0.35);
+      transform: rotate(-1deg);
+    }
+
+    .note-card.correct {
+      background: #bfe8ad;
+      color: #16301b;
+      border-color: #7bbc70;
+    }
+
+    .note-card.incorrect {
+      background: #f1b2b2;
+      color: #4a1518;
+      border-color: #d57b7b;
+    }
+
+    .note-card::before,
+    .note-card::after {
+      content: "";
+      position: absolute;
+      top: -9px;
+      width: 64px;
+      height: 18px;
+      background: rgba(255,255,255,0.38);
+      border: 1px solid rgba(0,0,0,0.08);
+      box-shadow: 0 2px 3px rgba(0,0,0,0.05);
+    }
+
+    .note-card::before {
+      left: 22px;
+      transform: rotate(-9deg);
+    }
+
+    .note-card::after {
+      right: 22px;
+      transform: rotate(8deg);
+    }
+
+    .note-label {
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .note-text {
+      font-size: 0.97rem;
+      line-height: 1.62;
+      margin-bottom: 16px;
+    }
+
+    .note-next-btn {
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 13px 14px;
+      background: #262a33;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.94rem;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.01em;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .note-next-btn:active { transform: scale(0.98); }
+
+
+    /* ── REPRISE ── */
+    .resume-overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1100;
+      backdrop-filter: blur(2px);
+    }
+
+    .resume-overlay.show { display: flex; }
+
+    .resume-card {
+      width: min(92vw, 420px);
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border2);
+      border-radius: 16px;
+      padding: 20px 18px 18px;
+      box-shadow: 0 22px 46px rgba(0,0,0,0.35);
+    }
+
+    .resume-title {
+      font-family: 'Manrope', 'Inter', sans-serif;
+      font-size: 1.02rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .resume-text {
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .resume-field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-bottom: 14px;
+    }
+
+    .resume-field-label {
+      font-size: 0.84rem;
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .resume-input {
+      width: 100%;
+      border: 1.5px solid var(--border2);
+      border-radius: 12px;
+      padding: 12px 13px;
+      background: var(--surface2);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.94rem;
+      outline: none;
+    }
+
+    .resume-input::placeholder {
+      color: var(--muted);
+    }
+
+    .resume-input:focus {
+      border-color: var(--accent);
+    }
+
+    .resume-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .resume-btn {
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 13px 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.94rem;
+      font-weight: 700;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .resume-btn.primary {
+      background: var(--accent);
+      color: #111;
+    }
+
+    .resume-btn.secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1.5px solid var(--border2);
+    }
+
+    /* ── RESULT ── */
+    .result-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 16px;
+      padding: 10px 0;
+    }
+
+    .result-screen.show { display: flex; }
+
+    .result-score {
+      font-family: 'Manrope', 'Inter', sans-serif;
+      font-size: 3.2rem;
+      color: var(--text);
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    .result-label {
+      font-size: 0.88rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .result-track {
+      width: 100%;
+      height: 6px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .result-bar {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 99px;
+      transition: width 1s cubic-bezier(.4,0,.2,1);
+      width: 0;
+    }
+
+    .result-note {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ── ACTIONS ── */
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.94rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: none;
+      transition: opacity 0.15s, transform 0.1s;
+      letter-spacing: 0.01em;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn.visible { display: block; }
+    .btn:active { transform: scale(0.98); }
+
+    .next-btn {
+      background: var(--accent);
+      color: #111;
+    }
+
+    .more-btn {
+      background: transparent;
+      border: 1.5px solid var(--border2);
+      color: var(--text);
+    }
+
+    /* ── TABLET ── */
+    @media (min-width: 640px) {
+      body { background: #141619; padding: 28px 12px; }
+      .shell {
+        min-height: auto;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+        border: 1px solid var(--border);
+      }
+      .header { padding: 24px 24px 18px; }
+      .content { padding: 22px 22px 32px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+
+    <div class="header">
+      <div class="header-top">
+        <div class="header-icon">📜</div>
+        <h1>
+          Quiz — Histoire 4<sup>e</sup>
+          <span>Vocabulaire · 10 questions par session</span>
+        </h1>
+      </div>
+      <div class="progress-row">
+        <div class="progress-track">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="progress-label" id="progressLabel">1 / 10</div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <div class="q-card" id="qCard">
+        <div class="q-meta">
+          <span class="q-num" id="qNum">Question 1</span>
+          <span class="q-type-pill" id="qType"></span>
+        </div>
+        <div class="q-text" id="qText"></div>
+      </div>
+
+      <div class="options" id="options"></div>
+
+      <div class="note-overlay" id="noteOverlay">
+        <div class="note-card" id="noteCard" role="dialog" aria-modal="true" aria-labelledby="noteLabel">
+          <div class="note-label" id="noteLabel">Note explicative</div>
+          <div class="note-text" id="noteText"></div>
+          <button class="note-next-btn" id="noteNextBtn">Question suivante →</button>
+        </div>
+      </div>
+
+
+
+      <div class="resume-overlay" id="resumeOverlay">
+        <div class="resume-card" role="dialog" aria-modal="true" aria-labelledby="resumeTitle">
+          <div class="resume-title" id="resumeTitle">Une progression a été trouvée</div>
+          <div class="resume-text" id="resumeText">Tu peux reprendre là où tu t’étais arrêté ou recommencer depuis le début.<br><br>Pour conserver ta progression, il vaut mieux utiliser le même appareil et le même navigateur.</div>
+          <div class="resume-field" id="resumeField">
+            <label class="resume-field-label" for="playerNameInput">Nom ou surnom (facultatif)</label>
+            <input class="resume-input" id="playerNameInput" type="text" maxlength="40" placeholder="Ex. Max" autocomplete="name" />
+          </div>
+          <div class="resume-actions">
+            <button class="resume-btn primary" id="resumeContinueBtn">Reprendre</button>
+            <button class="resume-btn secondary" id="resumeRestartBtn">Recommencer depuis le début</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-screen" id="resultScreen">
+        <div class="result-score" id="resultScore"></div>
+        <div class="result-label" id="resultLabel"></div>
+        <div class="result-track">
+          <div class="result-bar" id="resultBar"></div>
+        </div>
+        <div class="result-note" id="resultNote"></div>
+      </div>
+
+      <div class="actions">
+        <button class="btn next-btn" id="nextBtn">Question suivante →</button>
+        <button class="btn more-btn" id="moreBtn">Dix autres questions</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const QUIZ_SIZE = 10;
+    const LETTERS = ['A','B','C','D'];
+
+    const questions = [
+      {
+            "number": 1,
+            "question": "Comment appelle-t-on l'indicateur qui explique la forte augmentation de la population entre 1945 et 1960, au moment où le Québec connaît un nombre record de naissances ?",
+            "options": [
+                  "ACCROISSEMENT NATUREL",
+                  "INDICE DE FÉCONDITÉ",
+                  "SOLDE MIGRATOIRE",
+                  "SURPLUS DÉMOGRAPHIQUE GLOBAL"
+            ],
+            "answer": 0,
+            "explanation": "Durant le Baby-boom, l'accroissement naturel est très élevé car le nombre de naissances dépasse largement le nombre de décès, ce qui fait bondir la population du Québec."
+      },
+      {
+            "number": 2,
+            "question": "Par quel processus l'État fédéral a-t-il tenté de forcer les jeunes Autochtones dans les pensionnats à abandonner leur culture pour adopter celle de la majorité blanche?",
+            "options": [
+                  "SÉGRÉGATION",
+                  "ACCULTURATION",
+                  "INTÉGRATION CIVIQUE",
+                  "DÉCULTURATION SYSTÉMIQUE"
+            ],
+            "answer": 1,
+            "explanation": "L'acculturation est le changement forcé de culture. Dans les pensionnats, on interdisait aux enfants de parler leur langue ou de pratiquer leurs traditions pour les assimiler à la culture dominante."
+      },
+      {
+            "number": 3,
+            "question": "Quel est le nom de l'accord commercial, signé en 2020 par le Canada, les États-Unis et le Mexique, pour s'adapter aux changements de l'économie mondiale ?",
+            "options": [
+                  "ALENA",
+                  "ACEUM",
+                  "PTPGP",
+                  "TRAITÉ DE RÉCIPROCITÉ MODERNE"
+            ],
+            "answer": 1,
+            "explanation": "L'ACEUM est l'entente actuelle qui facilite les échanges de marchandises entre les trois pays d'Amérique du Nord, remplaçant l'ancienne entente qu'était l'ALENA."
+      },
+      {
+            "number": 4,
+            "question": "Quel terme désigne le territoire formé par une ville centre et les banlieues qui l'entourent, une organisation qui s'est généralisée avec l'automobile après 1945 ?",
+            "options": [
+                  "DÉVITALISATION",
+                  "ÉTALEMENT RÉSIDENTIEL",
+                  "AGGLOMÉRATION URBAINE",
+                  "PÉRIPHÉRIE MÉTROPOLITAINE"
+            ],
+            "answer": 2,
+            "explanation": "Une agglomération urbaine est un espace composé d'une ville principale et de ses couronnes de banlieues. Ce mode d'organisation du territoire est lié à l'étalement urbain."
+      },
+      {
+            "number": 5,
+            "question": "Quelle idéologie, défendue par le clergé et Maurice Duplessis, encourageait les Québécois à rester à la campagne et à cultiver la terre pour protéger leurs traditions ?",
+            "options": [
+                  "COOPÉRATISME",
+                  "AGRICULTURISME",
+                  "LIBÉRALISME ÉCONOMIQUE",
+                  "RURALISME IDENTITAIRE"
+            ],
+            "answer": 1,
+            "explanation": "L'agriculturisme présentait la vie rurale comme le meilleur moyen de protéger la langue française et la religion catholique contre l'influence des villes industrielles."
+      },
+      {
+            "number": 6,
+            "question": "Quel accord de libre-échange, en vigueur de 1994 à 2020, a permis d'augmenter les échanges économiques entre le Canada, les États-Unis et le Mexique ?",
+            "options": [
+                  "ALENA",
+                  "ACEUM",
+                  "PACTE DE L'ATLANTIQUE",
+                  "UNITÉ COMMERCIALE NORD-AMÉRICAINE"
+            ],
+            "answer": 0,
+            "explanation": "L'ALENA a été l'accord économique majeur qui a marqué les exportations québécoises pendant plus de 25 ans avant d'être modernisé et remplacé par l'ACEUM."
+      },
+      {
+            "number": 7,
+            "question": "Comment appelle-t-on une personne dont la langue maternelle n'est ni le français ni l'anglais, les deux langues officielles du Canada ?",
+            "options": [
+                  "FRANCOVALUDE",
+                  "ALLOPHONE",
+                  "NÉO-QUÉBÉCOIS",
+                  "MULTILINGUE DE SOUCHE"
+            ],
+            "answer": 1,
+            "explanation": "Le terme allophone désigne les nouveaux arrivants dont la langue d'origine est différente de celle de la majorité. Leur intégration à la langue française est un enjeu important au Québec depuis la Loi 101."
+      },
+      {
+            "number": 8,
+            "question": "Quel mouvement de pensée s'oppose à la mondialisation actuelle et demande une économie plus humaine, plus sociale et plus respectueuse de l'environnement ?",
+            "options": [
+                  "NÉOLIBÉRALISME",
+                  "ALTERMONDIALISME",
+                  "SOCIALISME DÉMOCRATIQUE",
+                  "ÉCO-GLOBALISME SOCIAL"
+            ],
+            "answer": 1,
+            "explanation": "L'altermondialisme est un mouvement citoyen qui propose des alternatives au modèle économique dominant pour favoriser la justice sociale et la protection de la planète."
+      },
+      {
+            "number": 9,
+            "question": "Quelle position idéologique réclame la séparation de l'Église et de l'État et s'oppose à l'intervention du clergé dans les affaires publiques ?",
+            "options": [
+                  "ANTICLÉRICALISME",
+                  "ULTRAMONTANISME",
+                  "LAÏCISATION",
+                  "PROVINCIALISME RELIGIEUX"
+            ],
+            "answer": 0,
+            "explanation": "L'anticléricalisme était surtout présent au 19e siècle chez ceux qui critiquaient le pouvoir immense des évêques sur les décisions politiques et l'éducation au Québec."
+      },
+      {
+            "number": 10,
+            "question": "Comment appelle-t-on la politique qui force un groupe minoritaire à abandonner sa propre culture pour adopter celle du groupe dominant ?",
+            "options": [
+                  "MULTICULTURALISME",
+                  "ASSIMILATION",
+                  "ACCULTURATION VOLONTAIRE",
+                  "INTÉGRATIONNISME ABSOLU"
+            ],
+            "answer": 1,
+            "explanation": "L'assimilation est une politique qui vise à faire disparaître les différences culturelles d'un groupe pour qu'il se fonde complètement dans la culture de la majorité."
+      },
+      {
+            "number": 11,
+            "question": "Quel terme désigne l'ensemble des nations qui occupaient le territoire bien avant l'arrivée des explorateurs et des colons européens ?",
+            "options": [
+                  "PREMIÈRES NATIONS",
+                  "AUTOCHTONES",
+                  "MÉTIS",
+                  "PEUPLES ABORIGÈNES DU NORD"
+            ],
+            "answer": 0,
+            "explanation": "Le terme « Autochtones » est le terme générique qui inclut les Premières Nations, les Inuits et les Métis."
+      },
+      {
+            "number": 12,
+            "question": "Quel concept politique Maurice Duplessis défendait-il fermement pour empêcher le gouvernement fédéral de se mêler des domaines réservés au Québec ?",
+            "options": [
+                  "CENTRALISATION",
+                  "SOUVERAINETÉ-ASSOCIATION",
+                  "AUTONOMIE PROVINCIALE",
+                  "PROVINCIALISME ADMINISTRATIF"
+            ],
+            "answer": 2,
+            "explanation": "L'autonomie provinciale vise à protéger les compétences du Québec (comme la santé et l'éducation) face aux tentatives d'ingérence d'Ottawa."
+      },
+      {
+            "number": 13,
+            "question": "Comment appelle-t-on la période de forte natalité observée au Québec et au Canada entre 1945 et 1960 ?",
+            "options": [
+                  "DÉNATALITÉ",
+                  "RÉVOLUTION TRANQUILLE",
+                  "BABY-BOOM",
+                  "RELANCE POPULATIONNELLE"
+            ],
+            "answer": 2,
+            "explanation": "Le Baby-boom est marqué par une explosion record du nombre de naissances après la Seconde Guerre mondiale, transformant la pyramide des âges."
+      },
+      {
+            "number": 14,
+            "question": "Quel indicateur mesure la différence entre le nombre d'immigrants qui arrivent et le nombre d'émigrants qui quittent un territoire ?",
+            "options": [
+                  "IMMIGRATION",
+                  "BILAN MIGRATOIRE",
+                  "ÉMIGRATION",
+                  "FLUX DÉMOGRAPHIQUE ENTRANT"
+            ],
+            "answer": 1,
+            "explanation": "Le bilan (ou solde) migratoire permet de calculer l'apport réel de la population provenant de l'extérieur du territoire."
+      },
+      {
+            "number": 15,
+            "question": "Quelle caractéristique le gouvernement fédéral a-t-il officiellement adoptée pour reconnaître l'égalité des langues française et anglaise au Canada ?",
+            "options": [
+                  "MULTICULTURALISME",
+                  "BILINGUISME",
+                  "PLURALISME LINGUISTIQUE",
+                  "ÉQUITÉ PHONÉTIQUE"
+            ],
+            "answer": 1,
+            "explanation": "Le bilinguisme officiel, instauré en 1969, garantit aux citoyens le droit de recevoir des services fédéraux dans la langue officielle de leur choix."
+      },
+      {
+            "number": 16,
+            "question": "Comment appelle-t-on les sommes d'argent importantes qu'un investisseur place dans une entreprise pour financer ses activités ?",
+            "options": [
+                  "INTÉRÊTS",
+                  "CAPITAL",
+                  "FISCALITÉ",
+                  "FONDS DE ROULEMENT NATIONAL"
+            ],
+            "answer": 1,
+            "explanation": "Le capital financier est l'argent nécessaire pour investir dans les machines, les bâtiments et le développement des entreprises."
+      },
+      {
+            "number": 17,
+            "question": "Comment appelle-t-on le système économique basé sur la propriété privée des moyens de production et la recherche de profits ?",
+            "options": [
+                  "COOPÉRATISME",
+                  "ÉCONOMIE SOCIALE",
+                  "CAPITALISME",
+                  "LIBÉRALISME DE SUBSISTANCE"
+            ],
+            "answer": 2,
+            "explanation": "Le capitalisme repose sur la liberté d'entreprise, la propriété privée et la recherche de gain individuel."
+      },
+      {
+            "number": 18,
+            "question": "Comment appelle-t-on la situation où une seule entreprise contrôle la quasi-totalité d'un secteur économique ?",
+            "options": [
+                  "CAPITALISME DE MONOPOLE",
+                  "ÉTAT-PROVIDENCE",
+                  "CONCENTRATION ÉCONOMIQUE",
+                  "OLIGARCHIE COMMERCIALE"
+            ],
+            "answer": 0,
+            "explanation": "Le capitalisme de monopole permet à une seule grande compagnie d'éliminer la concurrence et de dominer le marché."
+      },
+      {
+            "number": 19,
+            "question": "Quel terme désigne la tendance d'un gouvernement à ramener tous les pouvoirs vers lui, au détriment des provinces ?",
+            "options": [
+                  "FÉDÉRALISME",
+                  "CENTRALISATION",
+                  "DÉCENTRALISATION",
+                  "UNITARISME FÉDÉRATIF"
+            ],
+            "answer": 1,
+            "explanation": "La centralisation est un enjeu majeur des relations fédérales-provinciales au Canada. Elle est souvent dénoncée par le Québec quand le gouvernement fédéral tente de prendre le contrôle de compétences provinciales, créant ainsi des tensions constitutionnelles."
+      },
+      {
+            "number": 20,
+            "question": "Quelle loi majeure, adoptée en 1977, a fait du français la seule langue officielle du Québec ?",
+            "options": [
+                  "LOI SUR LE BILINGUISME",
+                  "CHARTE DES DROITS ET LIBERTÉS",
+                  "CHARTE DE LA LANGUE FRANÇAISE",
+                  "CODE LINGUISTIQUE QUÉBÉCOIS"
+            ],
+            "answer": 2,
+            "explanation": "La Charte de la langue française (Loi 101) a pour but d'assurer la survie et le rayonnement du français comme langue commune au Québec."
+      },
+      {
+            "number": 21,
+            "question": "Quel document juridique protège les libertés fondamentales (expression, religion) et l'égalité de tous les citoyens face à la loi ?",
+            "options": [
+                  "CODE CIVIL",
+                  "CHARTE DES DROITS ET LIBERTÉS",
+                  "LOI CONSTITUTIONNELLE",
+                  "DÉCLARATION DES LIBERTÉS CIVIQUES"
+            ],
+            "answer": 1,
+            "explanation": "La Charte est le bouclier juridique qui empêche le gouvernement de voter des lois qui brimeraient les droits fondamentaux des individus."
+      },
+      {
+            "number": 22,
+            "question": "Quel terme désigne la situation d'une personne qui est apte au travail et qui en cherche un, mais qui n'en trouve pas ?",
+            "options": [
+                  "INACTIVITÉ",
+                  "PRÉCARITÉ",
+                  "CHÔMAGE",
+                  "DÉSHÉRENCE PROFESSIONNELLE"
+            ],
+            "answer": 2,
+            "explanation": "Le chômage est une préoccupation majeure, particulièrement lors des crises économiques comme celle des années 1930 ou des récessions des années 1980."
+      },
+      {
+            "number": 23,
+            "question": "Comment appelle-t-on le territoire géographique délimité où les électeurs votent pour élire un représentant (député) au Parlement ?",
+            "options": [
+                  "RÉGION ADMINISTRATIVE",
+                  "CIRCONSCRIPTION ÉLECTORALE",
+                  "DIVISION LÉGISLATIVE",
+                  "SECTEUR DE SCRUTIN"
+            ],
+            "answer": 1,
+            "explanation": "Chaque circonscription permet d'élire un député qui portera la voix de ses citoyens à l'Assemblée nationale (au niveau provincial) ou à la Chambre des communes (au niveau fédéral)."
+      },
+      {
+            "number": 24,
+            "question": "Quel concept désigne le lien juridique entre une personne et un État, lui conférant des droits politiques comme celui de voter ?",
+            "options": [
+                  "NATURALISATION",
+                  "DROIT DE CITÉ",
+                  "CITOYENNETÉ",
+                  "NATIONALISME CIVIQUE"
+            ],
+            "answer": 0,
+            "explanation": "La citoyenneté canadienne s'obtient par la naissance ou par un processus de naturalisation pour les immigrants."
+      },
+      {
+            "number": 25,
+            "question": "Quel courant de pensée prône l'intervention et l'autorité du clergé catholique dans tous les aspects de la vie sociale, culturelle et politique du Québec ?",
+            "options": [
+                  "ANTICLÉRICALISME",
+                  "ULTRAMONTANISME",
+                  "CLÉRICALISME",
+                  "LIBÉRALISME"
+            ],
+            "answer": 2,
+            "explanation": "Le cléricalisme domine la société québécoise pendant plus d'un siècle. Il se manifeste par le contrôle du clergé sur l'éducation et la santé, ainsi que par son influence auprès des chefs politiques (comme Honoré Mercier ou Maurice Duplessis)."
+      },
+      {
+            "number": 26,
+            "question": "Quelle idéologie associe la survie de la nation canadienne-française à la foi catholique et au mode de vie rural traditionnel ?",
+            "options": [
+                  "PATRIOTISME",
+                  "CLÉRICO-NATIONALISME",
+                  "AGRICULTURISME",
+                  "ULTRAMONTANISME NATIONALISTE"
+            ],
+            "answer": 1,
+            "explanation": "Le clérico-nationalisme a été le moteur de l'identité québécoise pendant des décennies, valorisant la famille, la terre et la religion."
+      },
+      {
+            "number": 27,
+            "question": "Quel terme désigne l'évolution des droits, de l'autonomie et de la place des femmes dans la société québécoise ?",
+            "options": [
+                  "FÉMINISME",
+                  "ÉQUITÉ SALARIALE",
+                  "CONDITION FÉMININE",
+                  "ÉMANCIPATION MATERNELLE"
+            ],
+            "answer": 2,
+            "explanation": "L'amélioration de la condition féminine est passée par l'obtention du droit de vote (1940 au Québec) et la reconnaissance juridique de l'égalité."
+      },
+      {
+            "number": 28,
+            "question": "Comment appelle-t-on l'union de plusieurs provinces qui acceptent de partager certains pouvoirs avec un gouvernement central ?",
+            "options": [
+                  "CONFÉDÉRATION",
+                  "PACTE FÉDÉRATIF",
+                  "COMMONWEALTH",
+                  "UNITARISME DE PROVINCE"
+            ],
+            "answer": 0,
+            "explanation": "La Confédération canadienne découle de l'Acte de l'Amérique du Nord britannique (AANB) de 1867. Elle a créé un système fédéral où les provinces conservent une part de leur souveraineté."
+      },
+      {
+            "number": 29,
+            "question": "Quelle mesure gouvernementale, très contestée, oblige les citoyens à s'enrôler dans l'armée pour combattre lors d'une guerre ?",
+            "options": [
+                  "MOBILISATION",
+                  "CONSCRIPTION",
+                  "SERVICE MILITAIRE OBLIGATOIRE",
+                  "ENRÔLEMENT PATRIOTIQUE FORCÉ"
+            ],
+            "answer": 1,
+            "explanation": "La conscription est une loi imposant l'enrôlement forcé. Elle a provoqué des affrontements violents au Québec, car les Canadiens français refusaient d'être obligés de se battre pour l'Empire britannique."
+      },
+      {
+            "number": 30,
+            "question": "Quel est le nom de la loi fondamentale d'un État qui définit son organisation politique et ses pouvoirs ?",
+            "options": [
+                  "CODE LÉGISLATIF",
+                  "CHARTE DE GOUVERNANCE",
+                  "CONSTITUTION",
+                  "PROTOCOLE ÉTATIQUE SUPRÊME"
+            ],
+            "answer": 2,
+            "explanation": "La Constitution est la règle de base que toutes les autres lois doivent respecter. Le Canada a rapatrié sa constitution en 1982."
+      },
+      {
+            "number": 31,
+            "question": "Quel terme désigne le processus d'intégration économique de plus en plus forte entre le Canada et les États-Unis, qui a fini par remplacer l'influence britannique ?",
+            "options": [
+                  "MONDIALISATION",
+                  "CONTINENTALISATION",
+                  "INTÉGRATION TRANSATLANTIQUE",
+                  "NORD-AMÉRICANISME ÉCONOMIQUE"
+            ],
+            "answer": 1,
+            "explanation": "La continentalisation marque le virage du Canada vers son voisin du Sud. Après 1945, les États-Unis deviennent notre principal partenaire commercial, investissant massivement dans nos ressources naturelles au détriment du Royaume-Uni."
+      },
+      {
+            "number": 32,
+            "question": "Quel moyen de contrôle des naissances, popularisé dans les années 1960, a provoqué une chute spectaculaire du taux de natalité et a marqué la Révolution tranquille?",
+            "options": [
+                  "PLANIFICATION FAMILIALE",
+                  "LIBÉRALISATION DES MŒURS",
+                  "CONTRACEPTION",
+                  "RÉGULATION PROLIFÉRATIVE"
+            ],
+            "answer": 2,
+            "explanation": "La contraception (notamment la pilule) a permis aux femmes de contrôler leur fécondité. Cela a mis fin à la période du Baby-boom et a provoqué une baisse rapide de la taille des familles québécoises."
+      },
+      {
+            "number": 33,
+            "question": "Comment appelle-t-on la période de grande détresse économique mondiale qui a débuté en 1929, entraînant une chute de la production et une explosion du chômage ?",
+            "options": [
+                  "RÉCESSION CYCLIQUE",
+                  "CRISE ÉCONOMIQUE",
+                  "DÉVALUATION MONÉTAIRE",
+                  "STAGNATION PARALYSANTE"
+            ],
+            "answer": 1,
+            "explanation": "La crise économique des années 1930 est la plus grave de l'histoire moderne. Elle a forcé l'État à intervenir pour aider les familles démunies par le biais des secours directs."
+      },
+      {
+            "number": 34,
+            "question": "Quel terme désigne l'augmentation durable de la production de biens et de services sur un territoire, généralement mesurée par l'évolution du produit intérieur brut (PIB) ?",
+            "options": [
+                  "INDICE DE PROSPÉRITÉ",
+                  "CROISSANCE ÉCONOMIQUE",
+                  "EXPANSION MANUFACTURIÈRE",
+                  "PLUS-VALUE SOCIÉTALE"
+            ],
+            "answer": 1,
+            "explanation": "Bien que la croissance économique soit un concept général, elle a été particulièrement marquée après 1945 grâce à l'exploitation des ressources naturelles et au développement industriel."
+      },
+      {
+            "number": 35,
+            "question": "Quel concept désigne la diffusion à grande échelle des mêmes produits culturels (radio, cinéma, musique) grâce aux nouveaux médias de communication ?",
+            "options": [
+                  "CULTURE DE MASSE",
+                  "FOLKLORE INDUSTRIEL",
+                  "DÉMOCRATISATION ÉLITISTE",
+                  "STANDARDISATION CRÉATIVE"
+            ],
+            "answer": 0,
+            "explanation": "La culture de masse s'est développée avec la radio et le cinéma, standardisant les goûts de la population et créant une identité commune à travers les médias."
+      },
+      {
+            "number": 36,
+            "question": "Quel processus a permis de retirer le contrôle des institutions sociales (comme les écoles et les hôpitaux) à l'Église pour le confier à l'État ?",
+            "options": [
+                  "LAÏCISATION RADICALE",
+                  "DÉCONFESSIONNALISATION",
+                  "ÉTATISATION RELIGIEUSE",
+                  "MODERNISME CLÉRICAL"
+            ],
+            "answer": 1,
+            "explanation": "La déconfessionnalisation est un pilier de la Révolution tranquille. L'État remplace l'Église dans la gestion des services publics pour les rendre universels et laïcs."
+      },
+      {
+            "number": 37,
+            "question": "Comment appelle-t-on le régime politique dans lequel le pouvoir appartient au peuple et où les citoyens exercent leur droit de vote pour choisir leurs représentants?",
+            "options": [
+                  "MONARCHIE PARLEMENTAIRE",
+                  "DÉMOCRATIE",
+                  "RÉPUBLIQUE CONSTITUTIONNELLE",
+                  "SOUVERAINETÉ POPULAIRE DIRECTE"
+            ],
+            "answer": 1,
+            "explanation": "La démocratie canadienne est basée sur le suffrage universel. Le droit de vote des femmes (1940 au Québec) a été une étape cruciale pour rendre notre démocratie plus inclusive."
+      },
+      {
+            "number": 38,
+            "question": "Quel terme désigne la baisse importante et durable du nombre de naissances au sein d'une population, un phénomène observé au Québec après le Baby-boom ?",
+            "options": [
+                  "DÉPOPULATION",
+                  "DÉNATALITÉ",
+                  "RÉGRESSION DÉMOGRAPHIQUE",
+                  "HIVER DÉMOGRAPHIQUE"
+            ],
+            "answer": 1,
+            "explanation": "La dénatalité au Québec commence vers 1960. Elle s'explique par la contraception, mais aussi par l'entrée des femmes sur le marché du travail et le coût de la vie."
+      },
+      {
+            "number": 39,
+            "question": "Comment appelle-t-on la personne élue par les citoyens d'une circonscription pour siéger à l'Assemblée législative et participer à l'adoption des lois ?",
+            "options": [
+                  "MINISTRE ÉLU",
+                  "DÉPUTÉ",
+                  "COMMISSAIRE LÉGISLATIF",
+                  "PRÉFET PARLEMENTAIRE"
+            ],
+            "answer": 1,
+            "explanation": "Le député représente les intérêts de ses électeurs. Au Québec, ils siègent à l'Assemblée nationale pour débattre et voter les projets de loi. Au fédéral, ils siègent à la Chambre des communes. Ces deux institutions sont les chambres législatives où s'exerce le pouvoir de faire des lois."
+      },
+      {
+            "number": 40,
+            "question": "Quel terme désigne le fait de traiter une personne ou un groupe de façon injuste ou inégale en raison de ses caractéristiques personnelles (sexe, origine, religion)?",
+            "options": [
+                  "PRÉJUDICE SOCIAL",
+                  "DISCRIMINATION",
+                  "SÉGRÉGATION SYSTÉMIQUE",
+                  "INTOLÉRANCE CIVIQUE"
+            ],
+            "answer": 1,
+            "explanation": "La lutte contre la discrimination a mené à la création de la Charte des droits et libertés pour garantir l'égalité des chances à tous les citoyens."
+      },
+      {
+            "number": 41,
+            "question": "Quel concept désigne la présence de plusieurs communautés d'origines différentes au sein d'une même société, favorisant ainsi le métissage des traditions ?",
+            "options": [
+                  "PLURALISME ETHNIQUE",
+                  "DIVERSITÉ CULTURELLE",
+                  "MULTICULTURALISME",
+                  "MOSAÏQUE IDENTITAIRE"
+            ],
+            "answer": 1,
+            "explanation": "La diversité culturelle est une caractéristique majeure du Québec moderne. Elle est alimentée par l'immigration provenant de partout dans le monde."
+      },
+      {
+            "number": 42,
+            "question": "Comment appelait-on autrefois un État membre de l'Empire britannique, comme le Canada entre 1867 et 1931, qui possédait son propre gouvernement tout en restant lié à la Couronne ?",
+            "options": [
+                  "COLONIE AUTONOME",
+                  "DOMINION",
+                  "PROTECTORAT ROYAL",
+                  "SOUVERAINETÉ PARTAGÉE"
+            ],
+            "answer": 1,
+            "explanation": "En tant que dominion, le Canada gérait ses affaires internes dès 1867, mais le Royaume-Uni contrôlait encore sa politique étrangère jusqu'en 1931."
+      },
+      {
+            "number": 43,
+            "question": "Quel principe politique exigeait qu'un projet de loi reçoive l'appui de la majorité des députés du Haut-Canada ET du Bas-Canada pour être adopté sous l'Union ?",
+            "options": [
+                  "COALITION PARLEMENTAIRE",
+                  "DOUBLE MAJORITÉ",
+                  "CONSENSUS RÉGIONAL",
+                  "BIPARTISME ÉQUITABLE"
+            ],
+            "answer": 1,
+            "explanation": "La double majorité visait à protéger les intérêts des deux régions, mais elle a souvent mené à l'instabilité politique car il était difficile d'obtenir cet accord."
+      },
+      {
+            "number": 44,
+            "question": "Quel courant politique privilégie généralement la liberté d'entreprise, les traditions et une intervention limitée de l'État dans l'économie ?",
+            "options": [
+                  "RÉFORMISME",
+                  "DROITE (POLITIQUE)",
+                  "PROGRESSISME SOCIAL",
+                  "ÉTATISME CONSERVATEUR"
+            ],
+            "answer": 1,
+            "explanation": "Les partis de droite prônent souvent une baisse des impôts et une plus grande place au secteur privé pour stimuler l'économie."
+      },
+      {
+            "number": 45,
+            "question": "Comment appelle-t-on les droits territoriaux et culturels que possèdent les peuples autochtones en raison de leur occupation du territoire bien avant l'arrivée des Européens ?",
+            "options": [
+                  "PRIVILÈGES HISTORIQUES",
+                  "DROITS ANCESTRAUX",
+                  "ACQUIS TERRITORIAUX",
+                  "PRÉROGATIVES ABORIGÈNES"
+            ],
+            "answer": 1,
+            "explanation": "Les droits ancestraux sont reconnus par la Constitution. Ils incluent souvent le droit de pratiquer la chasse et la pêche sur leurs terres traditionnelles."
+      },
+      {
+            "number": 46,
+            "question": "Quel terme désigne la capacité juridique d'une personne à se porter candidate lors d'une élection pour devenir représentant du peuple ?",
+            "options": [
+                  "CAPACITÉ ÉLECTIVE",
+                  "ÉLIGIBILITÉ",
+                  "DROIT DE SUFFRAGE",
+                  "VALIDATION CANDIDATIVE"
+            ],
+            "answer": 1,
+            "explanation": "L'éligibilité est une condition de la démocratie. Pour être éligible au Québec, il faut généralement être citoyen canadien, avoir 18 ans et résider au Québec."
+      },
+      {
+            "number": 47,
+            "question": "Quel concept désigne l'action de se libérer d'une autorité, d'une tutelle ou d'une dépendance sociale, comme ce fut le cas pour les femmes québécoises au 20e siècle ?",
+            "options": [
+                  "AUTONOMIE LÉGALE",
+                  "ÉMANCIPATION",
+                  "DÉLIVRANCE CIVIQUE",
+                  "INDÉPENDANCE INDIVIDUELLE"
+            ],
+            "answer": 1,
+            "explanation": "L'émancipation des femmes est passée par la fin de l'incapacité juridique des femmes mariées en 1964, leur permettant enfin de gérer leurs propres biens."
+      },
+      {
+            "number": 48,
+            "question": "Comment appelait-on l'ensemble des territoires et colonies à travers le monde qui étaient sous l'autorité du Royaume-Uni ?",
+            "options": [
+                  "COMMONWEALTH MODERNE",
+                  "EMPIRE BRITANNIQUE",
+                  "CONFÉDÉRATION ANGLOPHONE",
+                  "ALLIANCE IMPÉRIALE"
+            ],
+            "answer": 1,
+            "explanation": "Le Canada a fait partie de l'Empire britannique depuis 1763. Son statut a évolué vers l'indépendance totale au fil du 20e siècle."
+      },
+      {
+            "number": 49,
+            "question": "Quel terme désigne un modèle d'État où le gouvernement intervient activement pour assurer le bien-être de la population par des programmes sociaux ?",
+            "options": [
+                  "ÉTAT-PATRON",
+                  "ÉTAT-PROVIDENCE",
+                  "GOUVERNANCE SOLIDAIRE",
+                  "ÉCONOMIE SOCIALE D'ÉTAT"
+            ],
+            "answer": 1,
+            "explanation": "L'État-providence s'est installé au Québec durant la Révolution tranquille avec la création de l'assurance-hospitalisation et du régime de rentes."
+      },
+      {
+            "number": 50,
+            "question": "Quel phénomène désigne le départ massif des populations des campagnes vers les villes pour y trouver du travail dans les industries ?",
+            "options": [
+                  "ÉTALEMENT URBAIN",
+                  "EXODE RURAL",
+                  "MIGRATION INTERRÉGIONALE",
+                  "DÉPEUPLEMENT AGRICOLE"
+            ],
+            "answer": 1,
+            "explanation": "L'exode rural a transformé le Québec d'une société agricole à une société urbaine et industrielle entre la fin du 19e et le milieu du 20e siècle."
+      },
+      {
+            "number": 51,
+            "question": "Quel système politique repose sur le partage des responsabilités entre un gouvernement central et des provinces, où chacun a ses propres compétences ?",
+            "options": [
+                  "CENTRALISME PARLEMENTAIRE",
+                  "FÉDÉRALISME",
+                  "UNITARISME CONSTITUTIONNEL",
+                  "RÉGIONALISME ADMINISTRATIF"
+            ],
+            "answer": 1,
+            "explanation": "Le fédéralisme permet au Québec de gérer ses domaines exclusifs (éducation, santé) tout en partageant d'autres responsabilités avec Ottawa. Ce partage des pouvoirs est un enjeu central de la fédération canadienne, provoquant souvent des débats sur l'autonomie des provinces."
+      },
+      {
+            "number": 52,
+            "question": "Quel mouvement social et politique lutte pour l'égalité des droits entre les femmes et les hommes et pour l'élimination des discriminations sexistes ?",
+            "options": [
+                  "ÉQUITISME",
+                  "FÉMINISME",
+                  "SUFFRAGISME LIBÉRAL",
+                  "HUMANISME DE GENRE"
+            ],
+            "answer": 1,
+            "explanation": "Le féminisme a mené à des gains historiques, comme l'accès aux études supérieures, l'équité salariale et la protection contre la violence."
+      },
+      {
+            "number": 53,
+            "question": "Quel courant politique prône généralement une plus grande intervention de l'État pour réduire les inégalités sociales et protéger les travailleurs ?",
+            "options": [
+                  "RÉACTIONNISME",
+                  "GAUCHE (POLITIQUE)",
+                  "NÉOLIBÉRALISME",
+                  "CORPORATISME ÉLITISTE"
+            ],
+            "answer": 1,
+            "explanation": "Les idées de gauche favorisent le financement des services publics (santé, éducation gratuite) par des impôts progressifs sur la richesse."
+      },
+      {
+            "number": 54,
+            "question": "Comment appelle-t-on un gouvernement formé par l'alliance de deux ou plusieurs partis politiques afin d'obtenir la majorité des sièges au Parlement ?",
+            "options": [
+                  "GOUVERNEMENT MINORITAIRE",
+                  "GOUVERNEMENT DE COALITION",
+                  "GOUVERNEMENT DE CONCORDANCE",
+                  "UNITÉ PARLEMENTAIRE"
+            ],
+            "answer": 1,
+            "explanation": "Une coalition est souvent nécessaire dans les systèmes où aucun parti n'obtient plus de 50 % des sièges à lui seul. Les partis s'entendent alors sur un programme commun pour pouvoir gouverner et éviter que le gouvernement ne soit renversé lors d'un vote de confiance."
+      },
+      {
+            "number": 55,
+            "question": "Comment appelle-t-on un arrêt travail afin de faire pression sur un employeur pour obtenir de meilleures conditions de travail?",
+            "options": [
+                  "LOCK-OUT",
+                  "GRÈVE",
+                  "DÉBRAYAGE SYNDICAL",
+                  "BOYCOTTAGE INDUSTRIEL"
+            ],
+            "answer": 1,
+            "explanation": "La grève est un moyen de pression syndical majeur. Au Québec, elle est officiellement reconnue pour le secteur public en 1964 avec l'adoption du Code du travail, marquant un tournant dans les relations de travail."
+      },
+      {
+            "number": 56,
+            "question": "Quel terme désigne la période de tensions idéologiques et diplomatiques mondiales (1945-1991) opposant le bloc de l'Ouest (capitaliste) au bloc de l'Est (communiste) ?",
+            "options": [
+                  "GUERRE FROIDE",
+                  "RIDEAU DE FER",
+                  "CONFLIT IDÉOLOGIQUE",
+                  "PACTE DE VARSOVIE"
+            ],
+            "answer": 0,
+            "explanation": "La guerre froide est un conflit sans affrontement direct entre les États-Unis et l'URSS. Le Canada y participe activement, notamment par son adhésion à l'OTAN et la construction de radars dans le Nord."
+      },
+      {
+            "number": 57,
+            "question": "Quel concept désigne la politique d'un État visant à étendre sa domination politique, économique ou culturelle sur d'autres territoires ou peuples ?",
+            "options": [
+                  "NATIONALISME",
+                  "IMPÉRIALISME",
+                  "COLONIALISME ACCÉLÉRÉ",
+                  "EXPANSIONNISME TERRITORIAL"
+            ],
+            "answer": 1,
+            "explanation": "À la fin du 19e siècle, l'impérialisme divise le Canada : les partisans de ce courant souhaitent renforcer les liens avec l'Empire britannique, tandis que les nationalistes réclament plus d'autonomie."
+      },
+      {
+            "number": 58,
+            "question": "Comment appelle-t-on la transformation d'une société par le passage d'une production artisanale à une production mécanisée en usine ?",
+            "options": [
+                  "URBANISATION",
+                  "INDUSTRIALISATION",
+                  "MODERNISATION PRODUCTIVE",
+                  "MACHINISME ÉCONOMIQUE"
+            ],
+            "answer": 1,
+            "explanation": "L'industrialisation du Québec connaît deux phases : la première repose sur le textile et le bois (fin 19e s.), alors que la seconde s'appuie sur l'hydroélectricité et les mines (début 20e s.)."
+      },
+      {
+            "number": 59,
+            "question": "Quel terme désigne l'ensemble des installations et équipements permanents nécessaires à l'activité économique et au fonctionnement d'une société ?",
+            "options": [
+                  "SERVICES PUBLICS",
+                  "INFRASTRUCTURE",
+                  "PATRIMOINE BÂTI",
+                  "RÉSEAU LOGISTIQUE"
+            ],
+            "answer": 1,
+            "explanation": "Le développement de chaque infrastructure (canaux, chemins de fer, barrages) est essentiel pour transporter les ressources naturelles et assurer le peuplement du vaste territoire canadien."
+      },
+      {
+            "number": 60,
+            "question": "Quel courant de pensée prône l'intervention de l'État dans l'économie pour réguler les cycles économiques et stimuler la demande, particulièrement lors de crises ?",
+            "options": [
+                  "LIBÉRALISME CLASSIQUE",
+                  "KEYNÉSIANISME",
+                  "MONÉTARISME",
+                  "MARXISME ÉCONOMIQUE"
+            ],
+            "answer": 1,
+            "explanation": "Le keynésianisme inspire les gouvernements après la Crise de 1929. Cette approche justifie la création de programmes sociaux et les dépenses publiques massives pour soutenir l'emploi."
+      },
+      {
+            "number": 61,
+            "question": "Comment appelle-t-on le processus par lequel une société retire le caractère religieux à ses institutions (comme l'éducation ou la santé) pour les rendre civiles ?",
+            "options": [
+                  "SÉCULARISME RADICAL",
+                  "LAÏCISATION",
+                  "DÉCONFESSIONNALISATION",
+                  "MODERNISME SOCIAL"
+            ],
+            "answer": 1,
+            "explanation": "La laïcisation est un pilier de la Révolution tranquille. L'État québécois prend alors le contrôle des écoles et des hôpitaux, des secteurs autrefois gérés presque exclusivement par l'Église catholique."
+      },
+      {
+            "number": 62,
+            "question": "Quel terme désigne l'ensemble des lois adoptées par un gouvernement dans un domaine précis ?",
+            "options": [
+                  "RÉDACTION CONSTITUTIONNELLE",
+                  "LÉGISLATION",
+                  "JURISPRUDENCE",
+                  "DÉCRET MINISTÉRIEL"
+            ],
+            "answer": 1,
+            "explanation": "La législation sociale s'est beaucoup développée au 20e siècle, avec des lois sur les accidents de travail, le salaire minimum ou l'assurance-maladie, modifiant la structure de la société."
+      },
+      {
+            "number": 63,
+            "question": "Quel système commercial permet la circulation des produits et des services entre les pays sans barrières douanières (taxes) ?",
+            "options": [
+                  "PROTECTIONNISME",
+                  "LIBRE-ÉCHANGE",
+                  "MERCANTILISME",
+                  "COMMERCE ÉQUITABLE"
+            ],
+            "answer": 1,
+            "explanation": "Le Canada a signé des accords de libre-échange, comme l'ALÉNA en 1994, pour faciliter les exportations vers les États-Unis, renforçant l'intégration économique nord-américaine."
+      },
+      {
+            "number": 64,
+            "question": "Quelle politique officielle vise à reconnaître et à protéger la diversité culturelle et ethnique au sein d'une société ?",
+            "options": [
+                  "ASSIMILATIONNISME",
+                  "MULTICULTURALISME",
+                  "INTERCULTURALISME",
+                  "PLURALISME INTÉGRATEUR"
+            ],
+            "answer": 1,
+            "explanation": "Le gouvernement de Pierre Elliott Trudeau adopte la politique du multiculturalisme en 1971. Cette approche reconnaît la valeur de toutes les cultures au sein de la mosaïque canadienne."
+      },
+      {
+            "number": 65,
+            "question": "Quel terme désigne l'action d'un État qui prend le contrôle d'une entreprise ou d'un secteur économique privé pour en faire une propriété publique ?",
+            "options": [
+                  "ÉTATISATION FORCÉE",
+                  "NATIONALISATION",
+                  "COLLECTIVISATION",
+                  "MONOPOLISATION D'ÉTAT"
+            ],
+            "answer": 1,
+            "explanation": "La nationalisation de l'électricité en 1963, portée par René Lévesque, a permis de créer Hydro-Québec et de faire de l'énergie un moteur de développement économique pour les Québécois."
+      },
+      {
+            "number": 66,
+            "question": "Quel courant de pensée se caractérise par l'attachement prioritaire à sa nation et la volonté d'en assurer l'épanouissement ou l'autonomie politique ?",
+            "options": [
+                  "NATIONALISME",
+                  "PATRIOTISME MILITAIRE",
+                  "SOUVERAINISME RADICAL",
+                  "FÉDÉRALISME IDENTITAIRE"
+            ],
+            "answer": 0,
+            "explanation": "Le nationalisme québécois se transforme durant la Révolution tranquille : il passe d'un nationalisme de survivance catholique à un nationalisme moderne centré sur l'État et la langue française."
+      },
+      {
+            "number": 67,
+            "question": "Quel courant économique et politique, dominant depuis les années 1980, prône la réduction de l'intervention de l'État et la privatisation des services publics ?",
+            "options": [
+                  "CAPITALISME CLASSIQUE",
+                  "NÉOLIBÉRALISME",
+                  "CONSERVATISME SOCIAL",
+                  "LIBERTARIANISME ÉTATIQUE"
+            ],
+            "answer": 1,
+            "explanation": "Le néolibéralisme remet en question l'État-providence. Il encourage le libre-marché et la réduction des dépenses publiques afin de diminuer la dette de l'État."
+      },
+      {
+            "number": 68,
+            "question": "Comment appelait-on les titres d'emprunt vendus par le gouvernement aux citoyens pour financer l'effort de guerre lors des conflits mondiaux ?",
+            "options": [
+                  "BONS DU TRÉSOR MILITAIRE",
+                  "OBLIGATION DE LA VICTOIRE",
+                  "PRÊT PATRIOTIQUE",
+                  "CERTIFICAT D'ARMEMENT"
+            ],
+            "answer": 1,
+            "explanation": "L'obligation de la victoire était un moyen pour le gouvernement fédéral de récolter des fonds auprès de la population afin de payer les coûts massifs de la Première et de la Seconde Guerre mondiale."
+      },
+      {
+            "number": 69,
+            "question": "Quel terme désigne une forme d'organisation sociale basée sur la domination exercée par les hommes sur les femmes, tant dans la famille que dans la société ?",
+            "options": [
+                  "ANDROCENTRISME",
+                  "PATRIARCAT",
+                  "MATRIARCAT REFOULÉ",
+                  "HIÉRARCHIE SEXUÉE"
+            ],
+            "answer": 1,
+            "explanation": "La lutte contre le patriarcat est au cœur des mouvements féministes des années 1960 et 1970, visant l'égalité juridique, l'autonomie financière et la fin de l'autorité exclusive du mari."
+      },
+      {
+            "number": 70,
+            "question": "Comment appelle-t-on les établissements scolaires religieux où les enfants autochtones étaient envoyés de force pour être assimilés à la culture canadienne ?",
+            "options": [
+                  "ÉCOLES DE RANG",
+                  "PENSIONNATS AUTOCHTONES",
+                  "CENTRES D'INTÉGRATION COLONIALE",
+                  "ÉCOLES DE MISSIONNAIRES"
+            ],
+            "answer": 1,
+            "explanation": "Mis en place par Ottawa et les Églises, les pensionnats autochtones visaient l'assimilation culturelle forcée, causant des traumatismes et la perte des traditions."
+      },
+      {
+            "number": 71,
+            "question": "Quel terme désigne un vote par lequel la population exprime son opinion sur une question précise afin d'orienter une décision politique ?",
+            "options": [
+                  "SCRUTIN UNINOMINAL",
+                  "PLÉBISCITE",
+                  "RÉFÉRENDUM CONSTITUTIONNEL",
+                  "CONSULTATION PARLEMENTAIRE"
+            ],
+            "answer": 1,
+            "explanation": "En 1942, Mackenzie King organise un plébiscite sur la conscription pour se libérer de sa promesse de ne pas envoyer de soldats de force outre-mer."
+      },
+      {
+            "number": 72,
+            "question": "Quel concept désigne la proportion d'une population par rapport à un ensemble plus vaste, influençant souvent sa représentativité politique ?",
+            "options": [
+                  "DENSITÉ DE POPULATION",
+                  "POIDS DÉMOGRAPHIQUE",
+                  "QUOTA ÉLECTORAL",
+                  "INDICE DE REPRODUCTION"
+            ],
+            "answer": 1,
+            "explanation": "Le maintien du poids démographique du Québec au Canada est un enjeu majeur, car sa baisse réduit l'influence politique de la province au fédéral."
+      },
+      {
+            "number": 73,
+            "question": "Comment appelle-t-on la capacité d'un gouvernement à percevoir des impôts et des taxes pour financer ses dépenses publiques ?",
+            "options": [
+                  "COMPTABILITÉ NATIONALE",
+                  "POUVOIRS FISCAUX",
+                  "PRÉROGATIVES MONÉTAIRES",
+                  "AUTONOMIE BUDGÉTAIRE"
+            ],
+            "answer": 1,
+            "explanation": "Le partage des pouvoirs fiscaux crée des tensions, le Québec luttant pour conserver sa part d'impôts afin de financer ses propres programmes sociaux."
+      },
+      {
+            "number": 74,
+            "question": "Comment appelle-t-on les pouvoirs qui ne sont pas explicitement attribués par la Constitution et qui reviennent automatiquement au gouvernement fédéral au Canada ?",
+            "options": [
+                  "DROITS RÉGALIENS",
+                  "POUVOIRS RÉSIDUAIRES",
+                  "COMPÉTENCES EXCLUSIVES",
+                  "PRÉROGATIVES CENTRALES"
+            ],
+            "answer": 1,
+            "explanation": "Au Canada, les pouvoirs résiduaires appartiennent au gouvernement fédéral, lui donnant juridiction sur tout nouveau domaine non prévu en 1867."
+      },
+      {
+            "number": 75,
+            "question": "Quel terme désigne la transformation de matières premières en produits finis dans des usines, secteur moteur de l'économie québécoise au tournant du 20e siècle?",
+            "options": [
+                  "EXPLOITATION DES RESSOURCES",
+                  "PRODUCTION MANUFACTURIÈRE",
+                  "ARTISANAT INDUSTRIEL",
+                  "ACTIVITÉ TERTIAIRE"
+            ],
+            "answer": 1,
+            "explanation": "La production manufacturière urbaine (textile, alimentation) domine la première phase d'industrialisation, s'appuyant sur une main-d'œuvre peu qualifiée et le bois."
+      },
+      {
+            "number": 76,
+            "question": "Quel courant de pensée prône des réformes sociales et politiques pour assurer une plus grande justice sociale et améliorer le bien-être général ?",
+            "options": [
+                  "CONSERVATISME SOCIAL",
+                  "PROGRESSISME",
+                  "ULTRAMONTANISME",
+                  "LIBÉRALISME ÉCONOMIQUE"
+            ],
+            "answer": 1,
+            "explanation": "Le progressisme cherche à humaniser la société et à promouvoir la justice sociale par l'intervention de l'État dans la santé, l'éducation et la protection des plus vulnérables."
+      },
+      {
+            "number": 77,
+            "question": "Quelle mesure économique vise à protéger l'industrie nationale contre la concurrence étrangère en imposant des tarifs douaniers sur les produits importés ?",
+            "options": [
+                  "LIBRE-ÉCHANGE",
+                  "PROTECTIONNISME",
+                  "RÉCIPROCITÉ",
+                  "MERCANTILISME"
+            ],
+            "answer": 1,
+            "explanation": "Avec sa Politique nationale de 1879, le gouvernement Macdonald utilise le protectionnisme pour encourager le développement des manufactures canadiennes."
+      },
+      {
+            "number": 78,
+            "question": "Quel processus politique et social du 21e siècle vise à réparer les relations entre l'État canadien et les Premières Nations, les Inuits et les Métis ?",
+            "options": [
+                  "ACCULTURATION",
+                  "RÉCONCILIATION",
+                  "INTÉGRATION CIVIQUE",
+                  "DIPLOMATIE TERRITORIALE"
+            ],
+            "answer": 1,
+            "explanation": "La réconciliation s'appuie sur la reconnaissance des torts causés par le système colonial, notamment à travers les travaux de la Commission vérité et réconciliation."
+      },
+      {
+            "number": 79,
+            "question": "Comment appelle-t-on la taxe perçue par l'État sur l'exploitation des ressources naturelles (forêts, mines, eau) par des entreprises privées ?",
+            "options": [
+                  "REDEVANCE",
+                  "IMPÔT FONCIER",
+                  "DROIT DE DOUANE",
+                  "DIVIDENDE DE MARCHÉ"
+            ],
+            "answer": 0,
+            "explanation": "Sous Duplessis, le gouvernement a été critiqué pour avoir accordé l'exploitation du fer de la Côte-Nord à des intérêts étrangers en échange de faibles redevances, privilégiant le développement rapide."
+      },
+      {
+            "number": 80,
+            "question": "Quel principe politique veut que les ministres soient choisis par le parti ayant l'appui d'une majorité de députés et qu'ils puissent perdre le pouvoir s'ils perdent cet appui ?",
+            "options": [
+                  "DROIT DE VÉTO",
+                  "RESPONSABILITÉ MINISTÉRIELLE (GOUVERNEMENT RESPONSABLE)",
+                  "MONARCHIE CONSTITUTIONNELLE",
+                  "DÉMOCRATIE DIRECTE"
+            ],
+            "answer": 1,
+            "explanation": "Obtenue en 1848, la responsabilité ministérielle (ou gouvernement responsable) signifie que le gouvernement doit avoir l'appui de la majorité des députés élus pour diriger, limitant ainsi le pouvoir du gouverneur."
+      },
+      {
+            "number": 81,
+            "question": "Quelle période de l'histoire du Québec, débutant en 1960, est marquée par une affirmation nationale intense, le passage à l'État-providence et la fin de l'influence de l'Église sur les institutions ?",
+            "options": [
+                  "GRANDE NOIRCEUR",
+                  "RÉVOLUTION TRANQUILLE",
+                  "ÉVEIL NATIONALISTE",
+                  "SIÈCLE DES LUMIÈRES"
+            ],
+            "answer": 1,
+            "explanation": "La Révolution tranquille transforme radicalement le Québec à partir de 1960. Sous le slogan « Maîtres chez nous », l'État devient le moteur du développement économique, social et culturel, remplaçant l'Église dans la gestion des services à la population."
+      },
+      {
+            "number": 82,
+            "question": "Quel concept désigne l'ensemble des mesures prises par l'État pour protéger et améliorer l'état de santé de l'ensemble de la population ?",
+            "options": [
+                  "MÉDECINE PRIVÉE",
+                  "SANTÉ PUBLIQUE",
+                  "HYGIÈNE SOCIALE",
+                  "PRÉVENTION CLINIQUE"
+            ],
+            "answer": 1,
+            "explanation": "Au début du 20e siècle, les politiques de santé publique ont été cruciales pour combattre les épidémies en milieu urbain grâce à la vaccination et à la pasteurisation du lait."
+      },
+      {
+            "number": 83,
+            "question": "Comment appelait-on l'aide financière accordée sous forme de coupons par les municipalités aux familles démunies durant la Grande Dépression des années 1930 ?",
+            "options": [
+                  "ASSURANCE-CHÔMAGE",
+                  "SECOURS DIRECT",
+                  "ALLOCATIONS FAMILIALES",
+                  "RENTE DE SURVIE"
+            ],
+            "answer": 1,
+            "explanation": "Le secours direct était une mesure d'urgence temporaire pour aider les chômeurs à se nourrir et se loger avant la mise en place d'un véritable système de protection sociale."
+      },
+      {
+            "number": 84,
+            "question": "Quel terme désigne une entreprise commerciale ou industrielle dont l'État est l'unique ou le principal actionnaire ?",
+            "options": [
+                  "SOCIÉTÉ D'ÉTAT",
+                  "COOPÉRATIVE NATIONALE",
+                  "MONOPOLE PRIVÉ",
+                  "ORGANISME PARA-PUBLIC"
+            ],
+            "answer": 0,
+            "explanation": "Hydro-Québec est l'exemple le plus célèbre de société d'état, créée pour assurer la souveraineté économique des Québécois sur leurs ressources énergétiques."
+      },
+      {
+            "number": 85,
+            "question": "Quelle option politique propose de faire du Québec un pays indépendant tout en maintenant un lien économique privilégié avec le Canada ?",
+            "options": [
+                  "FÉDÉRALISME RENOUVELÉ",
+                  "SOUVERAINETÉ-ASSOCIATION",
+                  "INDÉPENDANCE UNILATÉRALE",
+                  "CONFÉDÉRATION DÉCENTRALISÉE"
+            ],
+            "answer": 1,
+            "explanation": "La souveraineté-association était au cœur du programme du Parti québécois lors du référendum de 1980, visant à concilier autonomie politique et union économique."
+      },
+      {
+            "number": 86,
+            "question": "Comment appelle-t-on le droit de voter aux élections ?",
+            "options": [
+                  "SCRUTIN",
+                  "SUFFRAGE",
+                  "ÉLECTORALISME",
+                  "MANDAT POPULAIRE"
+            ],
+            "answer": 1,
+            "explanation": "Le suffrage féminin a été obtenu au niveau fédéral en 1918, mais les Québécoises ont dû attendre 1940 pour obtenir le droit de vote aux élections provinciales."
+      },
+      {
+            "number": 87,
+            "question": "Comment appelle-t-on une association de travailleurs qui a pour but de protéger leurs droits et d'améliorer leurs conditions de travail ?",
+            "options": [
+                  "CORPORATION",
+                  "SYNDICAT",
+                  "CONSEIL D'ADMINISTRATION",
+                  "COMITÉ DE GESTION"
+            ],
+            "answer": 1,
+            "explanation": "Le premier syndicat légal au Canada apparaît au 19e siècle, permettant aux ouvriers de négocier collectivement leurs salaires et leurs horaires face aux employeurs."
+      },
+      {
+            "number": 88,
+            "question": "Quel terme désigne les projets de construction et d'aménagement financés par l'État pour stimuler l'économie ou offrir des services à la population ?",
+            "options": [
+                  "INFRASTRUCTURES PRIVÉES",
+                  "TRAVAUX PUBLICS",
+                  "DÉVELOPPEMENT IMMOBILIER",
+                  "CHANTIERS COMMUNAUTAIRES"
+            ],
+            "answer": 1,
+            "explanation": "Durant la crise des années 1930, les gouvernements ont financé de grands travaux publics (routes, ponts, parcs) pour donner du travail aux nombreux chômeurs."
+      },
+      {
+            "number": 89,
+            "question": "Quel courant de pensée prône la suprématie de l'Église catholique sur l'État et l'obéissance absolue au pape ?",
+            "options": [
+                  "LAÏCISME",
+                  "ULTRAMONTANISME",
+                  "ANTICLÉRICALISME",
+                  "LIBÉRALISME POLITIQUE"
+            ],
+            "answer": 1,
+            "explanation": "L'ultramontanisme a exercé une influence majeure au Québec au 19e siècle, l'Église cherchant à contrôler la vie politique, l'éducation et les valeurs morales de la société."
+      },
+      {
+            "number": 90,
+            "question": "Quel terme désigne le mouvement de population des campagnes vers les villes, entraînant la croissance rapide de ces dernières ?",
+            "options": [
+                  "COLONISATION",
+                  "URBANISATION",
+                  "MIGRATION SAISONNIÈRE",
+                  "DÉCENTRALISATION"
+            ],
+            "answer": 1,
+            "explanation": "L'urbanisation s'accélère avec l'industrialisation. Au Québec, c'est au début du 20e siècle (vers 1921) que la population urbaine devient majoritaire pour la première fois."
+      },
+      {
+            "number": 91,
+            "question": "Quel terme désigne l'hostilité, la peur ou le rejet systématique envers les personnes d'origine étrangère ?",
+            "options": [
+                  "PLURALISME",
+                  "XÉNOPHOBIE",
+                  "COSMOPOLITISME",
+                  "INTÉGRATIONNISME"
+            ],
+            "answer": 1,
+            "explanation": "La xénophobie s'est parfois manifestée lors de périodes de crise économique ou de guerre, notamment par des politiques discriminatoires envers certains groupes d'immigrants."
+      }
+];
+
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function prepQuestion(q) {
+      const opts = shuffle(q.options.map((text, i) => ({ text, correct: i === q.answer })));
+      return { ...q, shuffledOptions: opts, correctIndex: opts.findIndex(o => o.correct) };
+    }
+
+    let pool = [], idx = 0, score = 0, answered = false, finished = false;
+    let remainingQueue = [];
+    let currentBatchSize = QUIZ_SIZE;
+    let cumulativeCorrect = 0;
+    let cumulativeAsked = 0;
+    let seriesCount = 0;
+    let selectedIndex = null;
+    let noteVisible = false;
+    let playerName = '';
+
+    const $ = id => document.getElementById(id);
+    const STORAGE_KEY = 'quiz-progress::hqc4-vocab';
+    // Note: LEGACY_STORAGE_KEY supprimé — location.pathname est instable dans les iframes Google Sites
+
+    // Détection si localStorage est accessible (bloqué dans certaines iframes)
+    function isLocalStorageAvailable() {
+      try {
+        const testKey = '__quiz_test__';
+        localStorage.setItem(testKey, '1');
+        localStorage.removeItem(testKey);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    // Fallback : cookies si localStorage bloqué
+    function setCookie(name, value, days) {
+      try {
+        const expires = new Date(Date.now() + days * 864e5).toUTCString();
+        // On tronque la valeur pour éviter de dépasser la limite cookie (~4KB)
+        const truncated = value.length > 3800 ? value.slice(0, 3800) : value;
+        document.cookie = `${name}=${encodeURIComponent(truncated)}; expires=${expires}; path=/; SameSite=None; Secure`;
+      } catch(e) {}
+    }
+
+    function getCookie(name) {
+      try {
+        const match = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '=([^;]*)'));
+        return match ? decodeURIComponent(match[1]) : null;
+      } catch(e) { return null; }
+    }
+
+    function deleteCookie(name) {
+      try {
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=None; Secure`;
+      } catch(e) {}
+    }
+
+    function storageSet(key, value) {
+      if (isLocalStorageAvailable()) {
+        try { localStorage.setItem(key, value); } catch(e) {}
+      }
+      setCookie(key, value, 90);
+    }
+
+    function storageGet(key) {
+      if (isLocalStorageAvailable()) {
+        try {
+          const val = localStorage.getItem(key);
+          if (val) return val;
+        } catch(e) {}
+      }
+      return getCookie(key);
+    }
+
+    function storageRemove(key) {
+      if (isLocalStorageAvailable()) {
+        try { localStorage.removeItem(key); } catch(e) {}
+      }
+      deleteCookie(key);
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function isValidStoredState(parsed) {
+      return !!(
+        parsed &&
+        Array.isArray(parsed.pool) &&
+        Array.isArray(parsed.remainingQueue)
+      );
+    }
+
+    function saveState() {
+      try {
+        const payload = JSON.stringify({
+          pool,
+          idx,
+          score,
+          answered,
+          finished,
+          remainingQueue,
+          currentBatchSize,
+          cumulativeCorrect,
+          cumulativeAsked,
+          seriesCount,
+          selectedIndex,
+          noteVisible,
+          explanationViewed,
+          playerName,
+          savedAt: Date.now()
+        });
+        storageSet(STORAGE_KEY, payload);
+      } catch (e) {}
+    }
+
+    function loadState() {
+      try {
+        const raw = storageGet(STORAGE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        return isValidStoredState(parsed) ? parsed : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function clearState() {
+      try {
+        storageRemove(STORAGE_KEY);
+      } catch (e) {}
+    }
+    function persistProgressSnapshot() {
+      const overlayVisible = $('resumeOverlay') && $('resumeOverlay').classList.contains('show');
+      const hasActiveQuizState = Array.isArray(pool) && pool.length > 0 && !overlayVisible;
+      if (hasActiveQuizState) saveState();
+    }
+
+
+    function getPlayerName() {
+      return String(playerName || '').trim().slice(0, 40);
+    }
+
+    function savePlayerNameFromInput() {
+      playerName = String($('playerNameInput').value || '').trim().slice(0, 40);
+      $('playerNameInput').value = playerName;
+    }
+
+    function formatPlayerNamePrefix() {
+      const name = getPlayerName();
+      return name ? name + ' · ' : '';
+    }
+
+    function formatPlayerNameGreeting() {
+      const name = getPlayerName();
+      return name ? name + ', ' : '';
+    }
+
+    function resetCycle() {
+      remainingQueue = shuffle([...questions]);
+      cumulativeCorrect = 0;
+      cumulativeAsked = 0;
+      seriesCount = 0;
+    }
+
+    function makeBatch(reset = false) {
+      if (reset || remainingQueue.length === 0) resetCycle();
+      currentBatchSize = Math.min(QUIZ_SIZE, remainingQueue.length);
+      pool = remainingQueue.splice(0, currentBatchSize).map(prepQuestion);
+      seriesCount++;
+    }
+
+    function startBatch(reset = false) {
+      makeBatch(reset);
+      idx = 0;
+      score = 0;
+      answered = false;
+      finished = false;
+      selectedIndex = null;
+      noteVisible = false;
+      explanationViewed = false;
+      $('qCard').style.display = '';
+      $('options').style.display = '';
+      $('resultScreen').classList.remove('show');
+      $('resultBar').style.width = '0%';
+      hideNote();
+      renderQ();
+    }
+
+    
+    let explanationViewed = false;
+
+    function hideNote() {
+      noteVisible = false;
+      $('noteOverlay').classList.remove('show');
+      $('noteCard').classList.remove('correct', 'incorrect');
+    }
+
+    function showNote(isCorrect) {
+      const q = pool[idx];
+      $('noteText').textContent = q.explanation;
+      $('noteLabel').textContent = isCorrect ? 'Bonne réponse' : 'Mauvaise réponse';
+      $('noteNextBtn').textContent = idx === currentBatchSize - 1 ? 'Voir le résultat →' : 'Question suivante →';
+      $('noteCard').classList.remove('correct', 'incorrect');
+      $('noteCard').classList.add(isCorrect ? 'correct' : 'incorrect');
+      $('noteOverlay').classList.add('show');
+      noteVisible = true;
+      explanationViewed = true;
+      saveState();
+    }
+
+    function renderQ() {
+      const q = pool[idx];
+      const shouldShowNote = answered && noteVisible;
+      hideNote();
+
+      const totalQuestions = questions.length;
+      const overallPosition = Math.min(cumulativeAsked + idx + 1, totalQuestions);
+      const pct = Math.max(4, Math.round((overallPosition / totalQuestions) * 100));
+      $('progressBar').style.width = pct + '%';
+      $('progressLabel').textContent = overallPosition + ' / ' + totalQuestions;
+
+      $('qNum').textContent = 'Dans cette série : ' + (idx + 1) + ' / ' + currentBatchSize;
+      $('qType').textContent = '';
+      $('qType').classList.add('hidden');
+
+      $('qText').innerHTML = `<span class="question-source-num">Réf. ${q.number}</span> ${escapeHtml(q.question)}`;
+
+      $('options').innerHTML = '';
+      q.shuffledOptions.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'opt-btn';
+        btn.innerHTML = `<span class="opt-letter">${LETTERS[i]}</span><span>${escapeHtml(opt.text)}</span>`;
+        btn.addEventListener('click', () => handleAnswer(i, btn));
+        $('options').appendChild(btn);
+      });
+
+      if (answered) {
+        const buttons = document.querySelectorAll('.opt-btn');
+        buttons.forEach(b => b.disabled = true);
+        buttons[q.correctIndex].classList.add('correct');
+
+        if (selectedIndex !== q.correctIndex && buttons[selectedIndex]) {
+          buttons[selectedIndex].classList.add('incorrect');
+        }
+
+        if (shouldShowNote) {
+          noteVisible = true;
+          showNote(selectedIndex === q.correctIndex);
+          return;
+        }
+      }
+
+      $('nextBtn').className = 'btn next-btn';
+      $('nextBtn').textContent = idx === currentBatchSize - 1 ? 'Voir le résultat →' : 'Question suivante →';
+      $('moreBtn').className = 'btn more-btn';
+      saveState();
+    }
+
+    function handleAnswer(sel, selBtn) {
+      if (answered || finished) return;
+      answered = true;
+      selectedIndex = sel;
+
+      const q = pool[idx];
+      const buttons = document.querySelectorAll('.opt-btn');
+      buttons.forEach(b => b.disabled = true);
+      buttons[q.correctIndex].classList.add('correct');
+
+      const isCorrect = sel === q.correctIndex;
+      if (!isCorrect) {
+        selBtn.classList.add('incorrect');
+      } else {
+        score++;
+      }
+
+      showNote(isCorrect);
+    }
+
+    function renderResultScreen() {
+      const pct = Math.round((score / currentBatchSize) * 100);
+      const cumulativePct = Math.round((cumulativeCorrect / cumulativeAsked) * 100);
+
+      $('qCard').style.display = 'none';
+      $('options').style.display = 'none';
+      const totalQuestions = questions.length;
+      const overallCompleted = Math.min(cumulativeAsked, totalQuestions);
+      const overallPct = Math.max(4, Math.round((overallCompleted / totalQuestions) * 100));
+      $('progressBar').style.width = overallPct + '%';
+      $('progressLabel').textContent = overallCompleted + ' / ' + totalQuestions;
+
+      const emoji = pct >= 80 ? '🏆' : pct >= 60 ? '👍' : '📚';
+      const label = pct >= 80 ? 'Excellent résultat' : pct >= 60 ? 'Résultat solide' : 'Continue à pratiquer';
+      const namePrefix = formatPlayerNamePrefix();
+      const nameGreeting = formatPlayerNameGreeting();
+
+      $('resultScore').textContent = emoji + '  ' + score + ' / ' + currentBatchSize;
+      $('resultLabel').textContent = `${namePrefix}Série ${seriesCount} · ${label}`;
+
+      const rem = remainingQueue.length;
+      $('resultNote').textContent = rem > 0
+        ? `${nameGreeting}cumulatif : ${cumulativeCorrect} / ${cumulativeAsked} (${cumulativePct} %). Il reste ${rem} question${rem > 1 ? 's' : ''} avant d'avoir tout vu.`
+        : `${nameGreeting}cumulatif final : ${cumulativeCorrect} / ${cumulativeAsked} (${cumulativePct} %). Tu as maintenant vu toute la banque. La prochaine série repartira du début.`;
+
+      $('resultScreen').classList.add('show');
+      $('resultBar').style.width = pct + '%';
+      $('nextBtn').className = 'btn next-btn visible';
+      $('nextBtn').textContent = '🔄 Recommencer depuis le début';
+
+      $('moreBtn').className = 'btn more-btn visible';
+      $('moreBtn').textContent = rem > 0
+        ? (rem >= QUIZ_SIZE ? 'Dix autres questions' : `Dernières ${rem} questions`)
+        : 'Nouvelle ronde complète';
+    }
+
+    function showResult() {
+      finished = true;
+      noteVisible = false;
+      hideNote();
+      cumulativeCorrect += score;
+      cumulativeAsked += currentBatchSize;
+      renderResultScreen();
+      saveState();
+    }
+
+    $('noteNextBtn').addEventListener('click', () => {
+      if (!answered || !explanationViewed) return;
+      hideNote();
+      if (idx < currentBatchSize - 1) {
+        idx++;
+        answered = false;
+        selectedIndex = null;
+        noteVisible = false;
+        explanationViewed = false;
+        renderQ();
+      } else {
+        showResult();
+      }
+    });
+
+    $('nextBtn').addEventListener('click', () => {
+      if (finished) { startBatch(true); return; }
+    });
+
+    $('moreBtn').addEventListener('click', () => {
+      if (!finished) return;
+      startBatch(false);
+    });
+
+    function applyRestoredState(restoredState) {
+      pool = restoredState.pool;
+      idx = restoredState.idx;
+      score = restoredState.score;
+      answered = restoredState.answered;
+      finished = restoredState.finished;
+      remainingQueue = restoredState.remainingQueue;
+      currentBatchSize = restoredState.currentBatchSize;
+      cumulativeCorrect = restoredState.cumulativeCorrect;
+      cumulativeAsked = restoredState.cumulativeAsked;
+      seriesCount = restoredState.seriesCount;
+      selectedIndex = Number.isInteger(restoredState.selectedIndex) ? restoredState.selectedIndex : null;
+      noteVisible = !!restoredState.noteVisible;
+      explanationViewed = !!restoredState.explanationViewed;
+      playerName = String(restoredState.playerName || '').trim().slice(0, 40);
+
+      $('resumeOverlay').classList.remove('show');
+
+      if (finished) {
+        hideNote();
+        renderResultScreen();
+      } else {
+        $('qCard').style.display = '';
+        $('options').style.display = '';
+        $('resultScreen').classList.remove('show');
+        $('resultBar').style.width = '0%';
+        renderQ();
+      }
+    }
+
+    function showIdentityStep() {
+      const titleEl = $('resumeTitle');
+      const textEl = $('resumeText');
+      const continueBtn = $('resumeContinueBtn');
+      const restartBtn = $('resumeRestartBtn');
+      const fieldEl = $('resumeField');
+      const nameInput = $('playerNameInput');
+
+      fieldEl.style.display = '';
+      nameInput.value = getPlayerName();
+      titleEl.textContent = 'Identification';
+      textEl.innerHTML = 'Tu peux inscrire un nom ou un surnom pour personnaliser les messages du quiz.<br><br>Pour conserver ta progression, il vaut mieux utiliser le même appareil et le même navigateur.';
+      continueBtn.textContent = 'Commencer';
+      restartBtn.style.display = 'none';
+
+      continueBtn.onclick = () => {
+        savePlayerNameFromInput();
+        $('resumeOverlay').classList.remove('show');
+        startBatch(true);
+      };
+      restartBtn.onclick = null;
+      setTimeout(() => nameInput.focus(), 0);
+    }
+
+    function bootQuiz() {
+      const restoredState = loadState();
+      const titleEl = $('resumeTitle');
+      const textEl = $('resumeText');
+      const continueBtn = $('resumeContinueBtn');
+      const restartBtn = $('resumeRestartBtn');
+      const fieldEl = $('resumeField');
+      const nameInput = $('playerNameInput');
+
+      $('resumeOverlay').classList.add('show');
+
+      if (restoredState) {
+        const restoredName = String(restoredState.playerName || '').trim().slice(0, 40);
+        playerName = restoredName;
+        nameInput.value = restoredName;
+        fieldEl.style.display = 'none';
+
+        titleEl.textContent = restoredName ? `Bon retour, ${restoredName}` : 'Une progression a été trouvée';
+        textEl.innerHTML = 'Tu peux reprendre là où tu t’étais arrêté ou recommencer depuis le début.<br><br>Pour conserver ta progression, il vaut mieux utiliser le même appareil et le même navigateur.';
+        continueBtn.textContent = 'Reprendre';
+        restartBtn.textContent = 'Recommencer depuis le début';
+        restartBtn.style.display = '';
+
+        continueBtn.onclick = () => applyRestoredState(restoredState);
+        restartBtn.onclick = () => {
+          clearState();
+          playerName = '';
+          nameInput.value = '';
+          bootQuiz();
+        };
+      } else {
+        fieldEl.style.display = 'none';
+        titleEl.innerHTML = 'Quiz interactif<br>Vocabulaire — Histoire du Québec et du Canada<br>4e secondaire';
+        textEl.innerHTML = 'Ce quiz permet de vérifier ta compréhension du vocabulaire important du cours et de mieux reconnaître les notions dans leur contexte historique.';
+        continueBtn.textContent = 'Poursuivre';
+        restartBtn.style.display = 'none';
+
+        continueBtn.onclick = () => {
+          showIdentityStep();
+        };
+        restartBtn.onclick = null;
+      }
+    }
+
+    window.addEventListener('pagehide', persistProgressSnapshot);
+    window.addEventListener('beforeunload', persistProgressSnapshot);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') persistProgressSnapshot();
+    });
+
+    bootQuiz();
+  </script>
+</body>
+</html>
